@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SettingsStore } from './settings.store';
+import { SettingsStore } from 'src/app/core/stores/settings.store';
 
 @Component({
   standalone: true,

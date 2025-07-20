@@ -1,8 +1,7 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, RouterOutlet } from '@angular/router';
-import { CounterComponent } from './features/counter/counter.component';
-import { SettingsComponent } from './features/settings/settings.component';
+import { RouterModule } from '@angular/router';
+import {} from './features/settings/settings.component';
 import { ThemeService } from './core/theme/theme.service';
 
 @Component({

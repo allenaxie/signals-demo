@@ -1,27 +1,56 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SettingsStore } from 'src/app/core/stores/settings.store';
+import {
+  SettingsStore,
+  Theme,
+  Language,
+} from 'src/app/core/stores/settings.store';
 
 @Component({
   standalone: true,
-  selector: 'app-settings',
+  selector: 'app-settings-panel',
   imports: [CommonModule],
   template: `
     <h2>Settings</h2>
 
-    <div>
-      <p>Theme: {{ settings.currentTheme() }}</p>
-      <button (click)="settings.toggleTheme()">Toggle Theme</button>
-    </div>
+    <section>
+      <p>
+        Theme: <strong>{{ settings.currentTheme() }}</strong>
+      </p>
+      <button
+        *ngFor="let t of themes"
+        (click)="settings.setTheme(t)"
+        [disabled]="settings.currentTheme() === t"
+      >
+        {{ t | titlecase }}
+      </button>
+    </section>
 
-    <div>
-      <p>Language: {{ settings.currentLanguage() }}</p>
-      <button (click)="settings.setLanguage('en')">English</button>
-      <button (click)="settings.setLanguage('es')">Español</button>
-      <button (click)="settings.setLanguage('cn')">中文</button>
-    </div>
+    <section>
+      <p>
+        Language: <strong>{{ settings.currentLanguage() }}</strong>
+      </p>
+      <button
+        *ngFor="let lang of languages"
+        (click)="settings.setLanguage(lang)"
+        [disabled]="settings.currentLanguage() === lang"
+      >
+        {{ labelFor(lang) }}
+      </button>
+    </section>
   `,
 })
-export class SettingsComponent {
+export class SettingsPanelComponent {
   constructor(public settings: SettingsStore) {}
+
+  themes: Theme[] = ['light', 'dark'];
+  languages: Language[] = ['en', 'es', 'cn'];
+
+  labelFor(lang: Language) {
+    return {
+      en: 'English',
+      es: 'Español',
+      cn: '中文',
+    }[lang];
+  }
 }

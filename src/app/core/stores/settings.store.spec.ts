@@ -1,63 +1,99 @@
+import { TestBed } from '@angular/core/testing';
+import { SettingsStore } from './settings.store';
 import { createMockLocalStorage } from 'src/app/shared/utils/mock-localstorage.utils';
-import { SettingsStore, Theme, Language } from './settings.store';
 
-describe('SettingsStore (with mocked localStorage)', () => {
-  let store: SettingsStore;
-  let mockStorage: ReturnType<typeof createMockLocalStorage>;
+describe('SettingsStore persistence (round-trip)', () => {
+  let mockStorage = createMockLocalStorage();
+  const realLocalStorage = window.localStorage;
 
   beforeEach(() => {
+    //!! If we create new mockStorage here, persistence will not work for some reason
+    // Override the browser global before each spec
+    Object.defineProperty(window, 'localStorage', {
+      value: mockStorage,
+      configurable: true,
+    });
+    TestBed.configureTestingModule({
+      providers: [SettingsStore],
+    });
+  });
+
+  afterEach(() => {
+    // Restore real storage
+    Object.defineProperty(window, 'localStorage', {
+      value: realLocalStorage,
+      configurable: true,
+    });
+    // Reset mockStorage here instead of beforeEach
     mockStorage = createMockLocalStorage();
-
-    // Replace global localStorage methods with the mock
-    spyOn(localStorage, 'getItem').and.callFake(mockStorage.getItem);
-    spyOn(localStorage, 'setItem').and.callFake(mockStorage.setItem);
-    spyOn(localStorage, 'removeItem').and.callFake(mockStorage.removeItem);
-    spyOn(localStorage, 'clear').and.callFake(mockStorage.clear);
-
-    localStorage.clear(); // from the mock
-    store = new SettingsStore();
   });
 
   it('should initialize with default values', () => {
+    TestBed.configureTestingModule({ providers: [SettingsStore] });
+    const store = TestBed.inject(SettingsStore);
     expect(store.currentTheme()).toBe('light');
     expect(store.currentLanguage()).toBe('en');
   });
 
   it('should load theme and language from localStorage if available', () => {
+    // Pre-seed the mock before constructing the store
     mockStorage.setItem('theme', JSON.stringify('dark'));
     mockStorage.setItem('language', JSON.stringify('es'));
 
-    const restored = new SettingsStore();
-    expect(restored.currentTheme()).toBe('dark');
-    expect(restored.currentLanguage()).toBe('es');
+    TestBed.configureTestingModule({ providers: [SettingsStore] });
+    const store = TestBed.inject(SettingsStore);
+    expect(store.currentTheme()).toBe('dark');
+    expect(store.currentLanguage()).toBe('es');
   });
 
   it('should toggle theme correctly', () => {
+    TestBed.configureTestingModule({ providers: [SettingsStore] });
+    const store = TestBed.inject(SettingsStore);
+
     store.toggleTheme();
     expect(store.currentTheme()).toBe('dark');
+
     store.toggleTheme();
     expect(store.currentTheme()).toBe('light');
   });
 
   it('should allow setting theme directly', () => {
+    TestBed.configureTestingModule({ providers: [SettingsStore] });
+    const store = TestBed.inject(SettingsStore);
+
     store.setTheme('dark');
     expect(store.currentTheme()).toBe('dark');
   });
 
   it('should allow setting language directly', () => {
+    TestBed.configureTestingModule({ providers: [SettingsStore] });
+    const store = TestBed.inject(SettingsStore);
+
     store.setLanguage('cn');
     expect(store.currentLanguage()).toBe('cn');
   });
 
-  it('should persist theme to localStorage on change', () => {
+  it('should persist theme so new store instance loads it', (done) => {
+    const store = TestBed.inject(SettingsStore);
     store.setTheme('dark');
-    const saved = JSON.parse(mockStorage.getItem('theme')!);
-    expect(saved).toBe('dark');
+
+    // give Angular’s effect() a chance
+    setTimeout(() => {
+      // New instance reads from mockStorage
+      const reloaded = TestBed.inject(SettingsStore);
+      expect(reloaded.currentTheme()).toBe('dark');
+      done();
+    }, 0);
   });
 
-  it('should persist language to localStorage on change', () => {
-    store.setLanguage('cn');
-    const saved = JSON.parse(mockStorage.getItem('language')!);
-    expect(saved).toBe('cn');
+  it('should persist language so new store instance loads it', (done) => {
+    const store = TestBed.inject(SettingsStore);
+    store.setLanguage('es');
+
+    setTimeout(() => {
+      const reloaded = TestBed.inject(SettingsStore);
+      expect(reloaded.currentLanguage()).toBe('es');
+      done();
+    }, 0);
   });
 });

@@ -1,8 +1,13 @@
-export function createMockLocalStorage() {
+export function createMockLocalStorage(): Storage {
   let store: Record<string, string> = {};
 
   return {
-    getItem: (key: string) => store[key] ?? null,
+    get length() {
+      return Object.keys(store).length;
+    },
+    getItem: (key: string) => {
+      return store[key] ?? null;
+    },
     setItem: (key: string, value: string) => {
       store[key] = value;
     },
@@ -11,6 +16,9 @@ export function createMockLocalStorage() {
     },
     clear: () => {
       store = {};
+    },
+    key: (index: number) => {
+      return Object.keys(store)[index] ?? null;
     },
   };
 }

@@ -7,10 +7,9 @@ import {
 } from 'src/app/core/stores/settings.store';
 
 @Component({
-  standalone: true,
-  selector: 'app-settings-panel',
-  imports: [CommonModule],
-  template: `
+    selector: 'app-settings-panel',
+    imports: [CommonModule],
+    template: `
     <h2>Settings</h2>
 
     <section>
@@ -38,7 +37,7 @@ import {
         {{ labelFor(lang) }}
       </button>
     </section>
-  `,
+  `
 })
 export class SettingsPanelComponent {
   constructor(public settings: SettingsStore) {}

@@ -2,9 +2,10 @@ import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
 
 @Component({
-    selector: 'app-counter',
-    imports: [CommonModule],
-    templateUrl: './counter.component.html'
+  selector: 'app-counter',
+  standalone: true,
+  imports: [CommonModule],
+  templateUrl: './counter.component.html',
 })
 export class CounterComponent {
   count = signal(0);

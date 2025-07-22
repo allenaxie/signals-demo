@@ -1,0 +1,13 @@
+<div>
+  <h2>RxJS Mapping Operators Demo</h2>
+
+  <button (click)="onSwitchMapClick()">switchMap</button>
+  <button (click)="onMergeMapClick()">mergeMap</button>
+  <button (click)="onExhaustMapClick()">exhaustMap</button>
+
+  <div>
+    @for (msg of logs; track $index) {
+    <div>{{ msg }}</div>
+    }
+  </div>
+</div>
